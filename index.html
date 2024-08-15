@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.14.1/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    <title>Alpine Task</title>
+</head>
+
+<body>
+    <div class="min-h-screen min-w-screen bg-[#e3cbff] pt-12 flex justify-center items-start" x-data="initTask">
+        <ul x-show="messages.length > 0" class="w-[35rem] bg-white flex flex-col gap-4 max-w-[70%] py-8 px-6 rounded-sm"
+            x-cloak>
+            <template x-for="message in messages">
+                <li class="py-2 px-6 bg-violet-100 font-mono" x-text="message"></li>
+            </template>
+        </ul>
+        <div class="fixed bottom-8 right-8">
+            <button class="w-16 h-16 bg-white p-4 rounded-[50%] flex justify-center items-center cursor-pointer"
+                @mouseover="showTooltip = true" @mouseleave="showTooltip = false"
+                @click="showFeedbackForm = !showFeedbackForm">
+                <svg x-show="!showFeedbackForm" fill="#9b6edd" class="max-w-full" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 458 458" xml:space="preserve"
+                    stroke="#9b6edd">
+                    <g stroke-width="0"></g>
+                    <g stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g>
+                        <g>
+                            <g>
+                                <path
+                                    d="M428,41.534H30c-16.569,0-30,13.431-30,30v252c0,16.568,13.432,30,30,30h132.1l43.942,52.243 c5.7,6.777,14.103,10.69,22.959,10.69c8.856,0,17.258-3.912,22.959-10.69l43.942-52.243H428c16.568,0,30-13.432,30-30v-252 C458,54.965,444.568,41.534,428,41.534z M323.916,281.534H82.854c-8.284,0-15-6.716-15-15s6.716-15,15-15h241.062 c8.284,0,15,6.716,15,15S332.2,281.534,323.916,281.534z M67.854,198.755c0-8.284,6.716-15,15-15h185.103c8.284,0,15,6.716,15,15 s-6.716,15-15,15H82.854C74.57,213.755,67.854,207.039,67.854,198.755z M375.146,145.974H82.854c-8.284,0-15-6.716-15-15 s6.716-15,15-15h292.291c8.284,0,15,6.716,15,15C390.146,139.258,383.43,145.974,375.146,145.974z">
+                                </path>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+                <svg x-show="showFeedbackForm" fill="#9b6edd" class="w-5" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 490 490" xml:space="preserve" x-cloak>
+                    <g stroke-width="0"></g>
+                    <g stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g>
+                        <polygon
+                            points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337 ">
+                        </polygon>
+                    </g>
+                </svg>
+            </button>
+            <div class="absolute -top-[52px] right-[7%] bg-white rounded-sm px-4 py-3"
+                x-show="showTooltip && !showFeedbackForm" x-transition x-cloak>
+                <p class="whitespace-nowrap font-serif text-sm">Click here to give us feedback :)</p>
+                <span
+                    class="absolute w-0 h-0 border-l-[5px] border-l-transparent border-t-[7px] border-t-white border-r-[5px] border-r-transparent right-[24px] -bottom-[6px]"></span>
+            </div>
+            <div x-show="showFeedbackForm" class="absolute bottom-[110%] right-[7%] bg-white px-6 py-4 rounded-md"
+                x-cloak x-transition>
+                <form class="w-56 pt-2 pb-6 flex flex-col" @submit.prevent="handleFormSubmission">
+                    <div class="flex flex-col gap-1 h-[4.7rem]">
+                        <label for="email" class="text-xs">Email</label>
+                        <input required type="email" name="email" id="email"
+                            class="focus:outline-none focus:ring-0 focus:border-[#8557c9] border border-solid border-[#c1a3ed] pl-2 py-2 text-sm rounded-sm font-serif"
+                            :class="formErrors.email && '!border-red-500'" x-model="formInputs.email"
+                            @input="handleFormValidation('email')" @blur="handleFormValidation('email')">
+                        <span x-text="formErrors.email" class="text-[9px] text-red-500 pl-[2px] -mt-[2px]"></span>
+                    </div>
+                    <div class="flex flex-col gap-1 h-28">
+                        <label for="message" class="text-xs">Your message</label>
+                        <textarea required name="message" id="message"
+                            class="resize-none focus:outline-none focus:ring-0 focus:border-[#8557c9] border border-solid border-[#c1a3ed] pl-2 py-2 text-sm rounded-sm font-serif"
+                            :class="formErrors.message && '!border-red-500'" x-model="formInputs.message"
+                            @input="handleFormValidation('message')" @blur="handleFormValidation('message')"></textarea>
+                        <span x-text="formErrors.message" class="text-[9px] text-red-500 pl-[2px] -mt-[2px]"></span>
+                    </div>
+                    <button
+                        class="py-2.5 text-sm rounded-sm bg-[#c1a3ed] text-white transition font-medium hover:scale-[1.02] active:scale-[.98]">Send
+                        Us</button>
+                </form>
+                <span
+                    class="absolute w-0 h-0 border-l-[5px] border-l-transparent border-t-[7px] border-t-white border-r-[5px] border-r-transparent right-[24px] -bottom-[6px]"></span>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    function initTask() {
+        return {
+            showTooltip: false,
+            showFeedbackForm: false,
+            messages: this.$persist([]),
+            formInputs: {
+                email: '',
+                message: '',
+            },
+            formErrors: {
+                email: '',
+                message: '',
+            },
+            handleFormValidation(field) {
+                if (!this.formInputs[field]) {
+                    this.formErrors[field] = 'This is a required field!';
+                    return;
+                }
+
+                const emailRegex = /\S+@\S+\.\S+/;
+                if (field === 'email' && !emailRegex.test(this.formInputs.email)) {
+                    this.formErrors.email = 'Invalid email!';
+                    return;
+                }
+
+                this.formErrors[field] = '';
+            },
+            handleFormSubmission(event) {
+                if (this.formErrors.email || this.formErrors.message) return;
+
+                this.messages.push(this.formInputs.message);
+
+                this.formInputs.email = '';
+                this.formInputs.message = '';
+                this.showFeedbackForm = false;
+            }
+        }
+    }
+</script>
+
+</html>
